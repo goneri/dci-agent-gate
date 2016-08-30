@@ -1,0 +1,5 @@
+---
+rhsm_login: 'foo'
+rhsm_password: 'bar'
+dci_login: 'foo'
+dci_password: 'bar'

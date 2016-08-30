@@ -1,0 +1,36 @@
+# we definitely need something better here... :D
+cat << EOF > tripleo-helper.yaml
+---
+rhsm:
+    login: "{{ rhsm_login }}"
+    password: "{{ rhsm_password }}"
+provisioner:
+    type: openstack
+    image:
+        name: RHEL 7.2 x86_64
+    flavor: m1.hypervisor
+    network: private
+    keypair: ovb-0
+    security-groups:
+        - ssh
+ssh:
+    private_key: /home/centos/.ssh/id_rsa
+
+# the RHSM channels and extra repository to enable
+repositories: &DEFAULT_REPOSITORIES
+    - {type: rhsm_channel, name: rhel-7-server-rpms}
+    - {type: rhsm_channel, name: rhel-7-server-optional-rpms}
+    - {type: rhsm_channel, name: rhel-7-server-extras-rpms}
+    - type: yum_repo
+      content: |
+$(sed 's,^,        ,' /home/centos/html/RHOS-DCI.repo)
+      dest: /etc/yum.repos.d/RHOS-DCI.repo
+
+host0:
+    # optional, the repository to enable on the hypervisor, if you use one
+    repositories: *DEFAULT_REPOSITORIES
+undercloud:
+    # the repository to enable on the undercloud
+    repositories: *DEFAULT_REPOSITORIES
+    floating_ip: 46.231.133.190
+EOF

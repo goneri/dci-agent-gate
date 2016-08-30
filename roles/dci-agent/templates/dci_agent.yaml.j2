@@ -1,0 +1,17 @@
+mirror:
+  url: http://rhos-mirror.distributed-ci.io
+  directory: /home/centos/html
+auth:
+  dci_login: {{ dci_login }}
+  dci_password: {{ dci_password }}
+remoteci: test-ovb-0
+undercloud_ip: 46.231.133.190
+topic: OSP8
+hooks:
+  provisioning:
+    - /usr/local/bin/prepare-tripleo-helper-config.sh
+    - chainsaw-ovb --config-file tripleo-helper.yaml provisioning
+  undercloud:
+    - chainsaw-ovb --config-file tripleo-helper.yaml undercloud
+  overcloud:
+    - chainsaw-ovb --config-file tripleo-helper.yaml overcloud
