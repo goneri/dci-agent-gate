@@ -6,17 +6,21 @@
     - https://www.rdoproject.org/repos/rdo-release.rpm
     - epel-release
 
-# not ready yet
-- yum: name=dci-agent state=present
+- copy: src=dci-agent.rpm dest=/tmp/dci-agent.rpm mode=0600
+- yum: name=/tmp/dci-agent.rpm state=present
 
 - file: path=/etc/dci state=directory mode=0755
+- file: path=/var/lib/dci-agent state=directory owner=dci-agent group=dci-agent mode=0755
 - template: src=dci_agent.yaml.j2 dest=/etc/dci/dci_agent.yaml
 - template: src=prepare-tripleo-helper-config.sh.j2 dest=/usr/local/bin/prepare-tripleo-helper-config.sh mode=0755
-- block:
-    - file: path=/home/centos/html state=directory mode=0755
-    - copy: src=id_rsa dest=/home/centos/.ssh/id_rsa mode=0600
-    - copy: src=id_rsa.pub dest=/home/centos/.ssh/id_rsa.pub mode=0755
-    - copy: src=known_hosts dest=/home/centos/.ssh/known_hosts mode=0644
-    - template: src=openrc.sh.j2 dest=/home/centos/openrc.sh mode=0755
-#    - shell: source /home/centos/openrc.sh && dci-agent
-  become_user: centos
+- file: path={{ item }} state=directory mode=0755 owner=dci-agent group=dci-agent
+  with_items:
+  - /var/lib/dci-agent/.ssh
+  - /var/lib/dci-agent/.html
+- file: path=/var/lib/dci-agent/html state=directory mode=0755 owner=dci-agent group=dci-agent
+- copy: src=id_rsa dest=/var/lib/dci-agent/.ssh/id_rsa mode=0600 owner=dci-agent group=dci-agent
+- copy: src=id_rsa.pub dest=/var/lib/dci-agent/.ssh/id_rsa.pub mode=0755 owner=dci-agent group=dci-agent
+- copy: src=known_hosts dest=/var/lib/dci-agent/.ssh/known_hosts mode=0644 owner=dci-agent group=dci-agent
+- template: src=openrc.sh.j2 dest=/var/lib/dci-agent/openrc.sh mode=0755 owner=dci-agent group=dci-agent
+- service: name=dci-agent.timer enabled=yes state=started
+- service: name=dci-agent.service enabled=yes

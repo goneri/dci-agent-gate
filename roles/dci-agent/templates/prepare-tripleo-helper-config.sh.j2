@@ -1,5 +1,5 @@
 # we definitely need something better here... :D
-cat << EOF > tripleo-helper.yaml
+cat << EOF > /var/lib/dci-agent/tripleo-helper.yaml
 ---
 rhsm:
     login: "{{ rhsm_login }}"
@@ -14,7 +14,7 @@ provisioner:
     security-groups:
         - ssh
 ssh:
-    private_key: /home/centos/.ssh/id_rsa
+    private_key: /var/lib/dci-agent/.ssh/id_rsa
 
 # the RHSM channels and extra repository to enable
 repositories: &DEFAULT_REPOSITORIES
@@ -23,7 +23,7 @@ repositories: &DEFAULT_REPOSITORIES
     - {type: rhsm_channel, name: rhel-7-server-extras-rpms}
     - type: yum_repo
       content: |
-$(sed 's,^,        ,' /home/centos/html/RHOS-DCI.repo)
+$(sed 's,^,        ,' /var/lib/dci-agent/html/RHOS-DCI.repo)
       dest: /etc/yum.repos.d/RHOS-DCI.repo
 
 host0:
