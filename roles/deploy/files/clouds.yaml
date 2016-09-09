@@ -1,0 +1,7 @@
+clouds:
+  defaults:
+    auth:
+      username: 'dci-gating'
+      password: 'Welcome to fish, the friendly interactive shell'
+      project_name: 'dci-env-ovb-0'
+      auth_url: 'http://46.231.132.68:5000/v2.0'

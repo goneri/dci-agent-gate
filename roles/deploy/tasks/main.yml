@@ -1,0 +1,81 @@
+- yum: name=https://www.rdoproject.org/repos/rdo-release.rpm state=present
+  become: true
+- name: ensure shade is installed for os_server
+  yum: name={{ item }} state=latest
+  with_items:
+    - python-pip
+    - python-requests
+    - python-openstackclient
+    - python-ironicclient
+    - python-swiftclient
+    - python-mistralclient
+    - python-troveclient
+    - python-neutronclient
+    - python-keystoneclient
+    - python-designateclient
+    - python-heatclient
+    - python-magnumclient
+    - python-munch
+    - python-cryptography
+  become: true
+- get_url:
+    url: http://dl.fedoraproject.org/pub/fedora/linux/development/rawhide/Everything/source/tree/Packages/p/python-shade-1.7.0-2.fc25.src.rpm
+    dest: /tmp/python-shade-1.7.0-2.fc25.src.rpm
+    mode: 0644
+- name: install dependencies to build python-shade
+  yum: name={{ item }} state=latest
+  with_items:
+    - python2-devel
+    - python-mock
+    - python-testrepository
+    - python2-rpm-macros
+    - python-rpm-macros
+  become: true
+- command: rpmbuild --rebuild /tmp/python-shade-1.7.0-2.fc25.src.rpm
+  become: true
+- yum: name=/root/rpmbuild/RPMS/noarch/python2-shade-1.7.0-2.el7.centos.noarch.rpm
+  become: true
+- file: name="{{ lookup('env', 'HOME') }}/.config/openstack/clouds.yaml" mode=0600
+- copy: src="test_shades.py" dest="/usr/local/bin/test_shades.py" mode=0755
+  become: true
+- command: curl http://46.231.132.68:5000/v2.0
+- command: test_shades.py
+- name: register the keypair
+  os_keypair:
+    state: present
+    public_key_file: "{{ lookup('env', 'HOME') }}/.ssh/id_rsa.pub"
+    name: dci-agent-ovb
+    cloud: defaults
+- name: Purge any existing instance
+  os_server:
+    state: absent
+    name: jumpbox
+    cloud: defaults
+- name: Deploy an instance
+  os_server:
+    state: present
+    name: jumpbox
+    image: CentOS 7 (1603) x86_64
+    key_name: dci-agent-ovb
+    timeout: 180
+    wait: yes
+    flavor: m1.small
+    auto_ip: yes
+    meta:
+      hostname: dci-agent-ovb
+    network: private
+    security_groups: [ ssh ]
+    cloud: defaults
+  register: nova
+- name: Add the host instance to Inventory
+  add_host: name=jumpbox groups=servers
+            ansible_ssh_host={{ nova.server.accessIPv4 }}
+            ansible_ssh_private_key_file="{{ lookup('env', 'HOME') }}/.ssh/id_rsa"
+            ansible_ssh_user=centos
+            ansible_ssh_common_args="-o ConnectionAttempts=20"
+- command: 'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o KbdInteractiveAuthentication=no -o PasswordAuthentication=no -i {{ hostvars["jumpbox"]["ansible_ssh_private_key_file"] }} centos@{{ hostvars["jumpbox"]["ansible_ssh_host"] }} uname -a'
+  register: task_result
+  until: task_result.rc == 0
+  delay: 1
+  ignore_errors: yes
+  retries: 60

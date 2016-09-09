@@ -6,8 +6,17 @@
     - https://www.rdoproject.org/repos/rdo-release.rpm
     - epel-release
 
-- copy: src=dci-agent.rpm dest=/tmp/dci-agent.rpm mode=0600
-- yum: name=/tmp/dci-agent.rpm state=present
+- name: "TODO DISABLE GPG CHECK ON dci repository"
+  ini_file:
+    dest: /etc/yum.repos.d/dci.repo
+    section: dci-devel
+    option: gpgcheck
+    value: 0
+- block:
+    - copy: src={{ local_rpm_file }} dest=/tmp/local_rpm_file.rpm mode=0600
+    - yum: name=/tmp/local_rpm_file.rpm state=present disable_gpg_check=yes
+  when: local_rpm_file|d()
+- yum: name=dci-agent state=present
 
 - file: path=/etc/dci state=directory mode=0755
 - file: path=/var/lib/dci-agent state=directory owner=dci-agent group=dci-agent mode=0755
@@ -16,11 +25,14 @@
 - file: path={{ item }} state=directory mode=0755 owner=dci-agent group=dci-agent
   with_items:
   - /var/lib/dci-agent/.ssh
-  - /var/lib/dci-agent/.html
+  - /var/lib/dci-agent/html
 - file: path=/var/lib/dci-agent/html state=directory mode=0755 owner=dci-agent group=dci-agent
 - copy: src=id_rsa dest=/var/lib/dci-agent/.ssh/id_rsa mode=0600 owner=dci-agent group=dci-agent
-- copy: src=id_rsa.pub dest=/var/lib/dci-agent/.ssh/id_rsa.pub mode=0755 owner=dci-agent group=dci-agent
+- copy: src=id_rsa.pub dest=/var/lib/dci-agent/.ssh/id_rsa.pub mode=0600 owner=dci-agent group=dci-agent
 - copy: src=known_hosts dest=/var/lib/dci-agent/.ssh/known_hosts mode=0644 owner=dci-agent group=dci-agent
-- template: src=openrc.sh.j2 dest=/var/lib/dci-agent/openrc.sh mode=0755 owner=dci-agent group=dci-agent
-- service: name=dci-agent.timer enabled=yes state=started
-- service: name=dci-agent.service enabled=yes
+- copy: src=openrc.sh dest=/var/lib/dci-agent/openrc.sh mode=0755 owner=dci-agent group=dci-agent
+
+# in order to be able to have a real time output of the deployment, we will
+# continue without ansible
+- template: src=run_dci_agent.sh.j2 dest=/tmp/run_dci_agent.sh mode=0755
+  delegate_to: "localhost"
