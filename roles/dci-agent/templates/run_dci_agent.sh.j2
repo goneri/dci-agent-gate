@@ -1,5 +1,5 @@
 #!/bin/sh
-
+set -v
 run () {
     ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o KbdInteractiveAuthentication=no -o PasswordAuthentication=no -tt -i {{ hostvars["jumpbox"]["ansible_ssh_private_key_file"] }} centos@{{ hostvars["jumpbox"]["ansible_ssh_host"] }} $*
 }
