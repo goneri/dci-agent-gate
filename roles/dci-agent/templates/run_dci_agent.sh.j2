@@ -5,4 +5,5 @@ run () {
 }
 
 run "sudo journalctl -ef -u dci-agent& sudo systemctl start dci-agent"
+sleep 2
 run "sudo systemctl status dci-agent" |exec grep 'Final status: success'
