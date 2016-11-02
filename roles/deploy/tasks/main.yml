@@ -19,8 +19,8 @@
     - python-cryptography
   become: true
 - get_url:
-    url: http://dl.fedoraproject.org/pub/fedora/linux/development/rawhide/Everything/source/tree/Packages/p/python-shade-1.7.0-2.fc25.src.rpm
-    dest: /tmp/python-shade-1.7.0-2.fc25.src.rpm
+    url: http://dl.fedoraproject.org/pub/fedora/linux/development/rawhide/Everything/source/tree/Packages/p/python-shade-1.12.1-1.fc26.src.rpm
+    dest: /tmp/python-shade.src.rpm
     mode: 0644
 - name: install dependencies to build python-shade
   yum: name={{ item }} state=latest
@@ -31,9 +31,9 @@
     - python2-rpm-macros
     - python-rpm-macros
   become: true
-- command: rpmbuild --rebuild /tmp/python-shade-1.7.0-2.fc25.src.rpm
+- command: rpmbuild --rebuild /tmp/python-shade.src.rpm
   become: true
-- yum: name=/root/rpmbuild/RPMS/noarch/python2-shade-1.7.0-2.el7.centos.noarch.rpm
+- yum: name=/root/rpmbuild/RPMS/noarch/python-shade-1.12.1-1.fc26.src.rpm
   become: true
 - file: name="{{ lookup('env', 'HOME') }}/.config/openstack/clouds.yaml" mode=0600
 - copy: src="test_shades.py" dest="/usr/local/bin/test_shades.py" mode=0755
