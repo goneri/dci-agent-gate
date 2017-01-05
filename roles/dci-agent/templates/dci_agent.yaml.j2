@@ -9,6 +9,7 @@ undercloud_ip: 46.231.133.190
 topic: OSP8
 hooks:
   provisioning:
+    - cp -v /var/www/html/$DCI_JOB_ID.repo /var/lib/dci-agent/html/RHOS-DCI.repo
     - /usr/local/bin/prepare-tripleo-helper-config.sh
     - source /var/lib/dci-agent/openrc.sh && chainsaw-ovb --config-file /var/lib/dci-agent/tripleo-helper.yaml provisioning
   undercloud:
