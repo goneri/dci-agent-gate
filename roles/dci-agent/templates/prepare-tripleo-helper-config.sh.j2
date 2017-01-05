@@ -4,6 +4,7 @@ cat << EOF > /var/lib/dci-agent/tripleo-helper.yaml
 rhsm:
     login: "{{ rhsm_login }}"
     password: "{{ rhsm_password }}"
+config_file: /var/log/tripleo-helper.log
 provisioner:
     type: openstack
     image:
