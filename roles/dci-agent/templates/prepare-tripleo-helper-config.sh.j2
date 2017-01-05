@@ -4,7 +4,8 @@ cat << EOF > /var/lib/dci-agent/tripleo-helper.yaml
 rhsm:
     login: "{{ rhsm_login }}"
     password: "{{ rhsm_password }}"
-config_file: /var/log/tripleo-helper.log
+    pool_id: "8a85f981568e999d01568ed222cd6712"
+config_file: /tmp/tripleo-helper.log
 provisioner:
     type: openstack
     image:
@@ -24,7 +25,7 @@ repositories: &DEFAULT_REPOSITORIES
     - {type: rhsm_channel, name: rhel-7-server-extras-rpms}
     - type: yum_repo
       content: |
-$(sed 's,^,        ,' /var/lib/dci-agent/html/RHOS-DCI.repo)
+$(sed 's,^,        ,' /var/www/html/RHOS-DCI.repo)
       dest: /etc/yum.repos.d/RHOS-DCI.repo
 
 host0:

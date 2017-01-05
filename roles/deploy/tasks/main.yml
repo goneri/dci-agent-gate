@@ -51,7 +51,7 @@
     meta:
       hostname: dci-agent-ovb
     network: private
-    security_groups: [ ssh ]
+    security_groups: [ ssh, http ]
     cloud: defaults
   register: nova
 - name: Add the host instance to Inventory
